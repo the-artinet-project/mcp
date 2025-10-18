@@ -19,7 +19,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "lib": ["ES2022"],
-    "skipLibCheck": true,
     "baseUrl": "."
   },
   "include": ["src/**/*", "bin/**/*"],
