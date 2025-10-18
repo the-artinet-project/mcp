@@ -1,6 +1,6 @@
-# Artinet MCP
+# artinet-mcp
 
-A collection of [Model Context Protocol (MCP)](https://modelcontextprotocol.io) servers for the Artinet ecosystem. These tools enable AI assistants to safely interact with system resources through standardized MCP interfaces.
+A collection of [Model Context Protocol (MCP)](https://modelcontextprotocol.io) servers for the artinet ecosystem. These tools enable AI assistants to safely interact with system resources through standardized MCP interfaces.
 
 ## Available Servers
 
