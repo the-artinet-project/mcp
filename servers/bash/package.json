@@ -34,10 +34,11 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "clean": "rimraf dist",
+    "clean:all": "rimraf dist node_modules package-lock.json",
     "dev": "tsc --watch",
     "start": "node dist/bin/stdio.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "prepublishOnly": "npm run clean:all && npm i && npm run build && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.0",
