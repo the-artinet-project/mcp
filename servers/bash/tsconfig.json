@@ -18,6 +18,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declarationMap": true,
     "lib": ["ES2022"],
     "baseUrl": "."
   },

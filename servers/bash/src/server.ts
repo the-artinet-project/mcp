@@ -101,8 +101,11 @@ class BashServer extends McpServer {
     }
 
     if (args.command) {
+      const commandParts = args.command?.split(/\s+/) || [];
       if (
-        this._bannedCommands.some((command) => args.command?.includes(command))
+        this._bannedCommands.some((cmd) =>
+          commandParts.some((part) => part === cmd)
+        )
       ) {
         return {
           content: [

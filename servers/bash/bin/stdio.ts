@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { BashServer } from "../src/server.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 

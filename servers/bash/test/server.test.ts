@@ -182,6 +182,26 @@ describe("BashMCPServer", () => {
       await client.close();
       await transport.close();
     }, 10000);
+    it("should work echo input", async () => {
+      const transport = new StdioClientTransport({
+        command: "node",
+        args: ["dist/bin/stdio.js"],
+      });
+      const client = new Client({ name: "Bash Client", version: "1.0.0" }, {});
+      await client.connect(transport);
+      const response = await client.callTool({
+        name: "bash",
+        arguments: {
+          command: "echo 'Testing bash tool functionality'",
+          stop: true,
+        },
+      });
+      expect((response as CallToolResult).content[0].text).toBe(
+        "Testing bash tool functionality"
+      );
+      await client.close();
+      await transport.close();
+    }, 10000);
     it("should work with stdio transport and banned commands", async () => {
       const transport = new StdioClientTransport({
         command: "node",
