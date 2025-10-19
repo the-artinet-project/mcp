@@ -103,6 +103,12 @@ describe("BashMCPServer", () => {
       const response = await server.bash({ restart: true });
       expect(response.content[0].text).toBe("tool has been restarted");
     });
+    it("should work after a restart", async () => {
+      const response = await server.bash({ restart: true });
+      expect(response.content[0].text).toBe("tool has been restarted");
+      const response2 = await server.bash({ command: "echo 'Hello, World!'" });
+      expect(response2.content[0].text).toBe("Hello, World!");
+    });
     //todo tests for sessionIds
   });
 
@@ -222,5 +228,68 @@ describe("BashMCPServer", () => {
       await client.close();
       await transport.close();
     }, 10000);
+    it("should work after a restart", async () => {
+      const transport = new StdioClientTransport({
+        command: "node",
+        args: ["dist/bin/stdio.js"],
+      });
+      const client = new Client({ name: "Bash Client", version: "1.0.0" }, {});
+      await client.connect(transport);
+      const response = await client.callTool({
+        name: "bash",
+        arguments: {
+          command: "echo 'Hello, World!'",
+        },
+      });
+      expect((response as CallToolResult).content[0].text).toBe(
+        "Hello, World!"
+      );
+      await client.callTool({
+        name: "bash",
+        arguments: {
+          restart: true,
+        },
+      });
+      const response2 = await client.callTool({
+        name: "bash",
+        arguments: {
+          command: "echo 'Hello, World!'",
+        },
+      });
+      expect((response2 as CallToolResult).content[0].text).toBe(
+        "Hello, World!"
+      );
+      await client.close();
+      await transport.close();
+    }, 10000);
+    it("should work after long delay", async () => {
+      const transport = new StdioClientTransport({
+        command: "node",
+        args: ["dist/bin/stdio.js"],
+      });
+      const client = new Client({ name: "Bash Client", version: "1.0.0" }, {});
+      await client.connect(transport);
+      const response = await client.callTool({
+        name: "bash",
+        arguments: {
+          command: "echo 'Hello, World!'",
+        },
+      });
+      expect((response as CallToolResult).content[0].text).toBe(
+        "Hello, World!"
+      );
+      await new Promise((resolve) => setTimeout(resolve, 120000));
+      const response2 = await client.callTool({
+        name: "bash",
+        arguments: {
+          command: "echo 'Hello, World!'",
+        },
+      });
+      expect((response2 as CallToolResult).content[0].text).toBe(
+        "Hello, World!"
+      );
+      await client.close();
+      await transport.close();
+    }, 180000);
   });
 });

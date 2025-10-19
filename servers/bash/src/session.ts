@@ -24,9 +24,11 @@ export class BashSession implements IBashSession {
   ) {
     this.sessionParams = params;
   }
-  async start() {
-    if (this.sessionParams.started) {
+  async start(force: boolean = false) {
+    if (this.sessionParams.started && !force) {
       throw new Error("Session has already started");
+    } else if (this.sessionParams.started && force) {
+      await this.stop();
     }
     this.sessionParams.process = spawn(this.sessionParams.command, [], {
       stdio: ["pipe", "pipe", "pipe"],
@@ -167,6 +169,7 @@ export class BashSession implements IBashSession {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+      this.sessionParams.isActive = false;
     }
     output = output;
     errorOutput = errorOutput;

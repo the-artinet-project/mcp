@@ -84,7 +84,10 @@ class BashServer extends McpServer {
     if (
       this.session === null ||
       this.session === undefined ||
-      !this.session.sessionParams.started
+      !this.session.sessionParams.started ||
+      this.session.sessionParams.process === null ||
+      this.session.sessionParams.process?.exitCode !== null ||
+      this.session.sessionParams.process?.killed
     ) {
       if (args.stop && !args.command) {
         return {
@@ -97,7 +100,7 @@ class BashServer extends McpServer {
         };
       }
       this.session = new BashSession();
-      await this.session.start();
+      await this.session.start(true);
     }
 
     if (args.command) {

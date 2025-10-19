@@ -17,7 +17,7 @@ const server = new BashServer(
 );
 
 async function runServer() {
-  console.log("Starting Bash Server on stdio...");
+  console.error("Starting Bash Server on stdio...");
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
