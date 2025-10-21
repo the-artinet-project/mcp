@@ -291,5 +291,24 @@ describe("BashMCPServer", () => {
       await client.close();
       await transport.close();
     }, 180000);
+
+    it("should work with long running command", async () => {
+      const transport = new StdioClientTransport({
+        command: "node",
+        args: ["dist/bin/stdio.js"],
+      });
+      const client = new Client({ name: "Bash Client", version: "1.0.0" }, {});
+      await client.connect(transport);
+      const response = await client.callTool({
+        name: "bash",
+        arguments: {
+          command:
+            "cd /home/pattp/.local/share/emoji_dir && npm test -- --config=jest.config.js",
+        },
+      });
+      expect((response as CallToolResult).content[0].text).toBeDefined();
+      await client.close();
+      await transport.close();
+    });
   });
 });

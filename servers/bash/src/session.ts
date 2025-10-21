@@ -126,8 +126,8 @@ export class BashSession implements IBashSession {
         timeoutPromise,
         new Promise(async (resolve) => {
           this.sessionParams.process?.stdout?.on("data", async (data) => {
-            await new Promise((resolve) =>
-              setTimeout(resolve, this.sessionParams.output_delay)
+            await new Promise((innerResolve) =>
+              setTimeout(innerResolve, this.sessionParams.output_delay)
             );
             let text: string = data.toString();
             if (text.includes(this.sessionParams.sentinel)) {
@@ -149,10 +149,13 @@ export class BashSession implements IBashSession {
               text = text.replace(this.sessionParams.sentinel, "");
             }
             errorOutput = errorOutput ? errorOutput + text : text;
+            //wait for a delay to ensure more error output is captured
+            await new Promise((innerResolve) =>
+              setTimeout(innerResolve, this.sessionParams.output_delay)
+            );
             resolve(errorOutput);
             return;
           });
-          this.sessionParams.isActive = false;
           await executionPromise;
         }),
       ]);

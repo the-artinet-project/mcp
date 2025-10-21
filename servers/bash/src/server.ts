@@ -139,6 +139,9 @@ class BashServer extends McpServer {
             type: "text",
             text: (result.output ?? result.errorOutput)?.trim(),
           },
+          ...(result.errorOutput
+            ? [{ type: "text" as const, text: `error: ${result.errorOutput}` }]
+            : []),
         ],
       };
     } else if (args.stop) {
