@@ -1,26 +1,25 @@
-import { ClientConfig } from "./types/index.js";
+/**
+ * Copyright 2025 The Artinet Project
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { ClientConfig, ScanConfig } from "./types/index.js";
 import * as portscanner from "portscanner";
+import pLimit from "p-limit";
 
-export interface RelayConfig {
-  host: string;
-  startPort: number;
-  endPort: number;
-  headers?: Record<string, string>;
-  fallbackPath?: string;
-}
+export const DEFAULT_MAX_THREADS = 250;
 
-export async function scanAgents(config: RelayConfig): Promise<ClientConfig[]> {
-  console.log(
-    `Scanning for agents on ${config.host}:${config.startPort}-${config.endPort}...`
-  );
-
-  // Use Promise.all for faster parallel scanning
+export async function scanAgents(config: ScanConfig): Promise<ClientConfig[]> {
+  //avoid overwhelming the port scanner
+  const limit = pLimit(config.threads ?? DEFAULT_MAX_THREADS);
   const portChecks = [];
-  for (let port = config.startPort; port <= config.endPort; port++) {
+  for (let port: number = config.startPort; port <= config.endPort; port++) {
     portChecks.push(
-      portscanner
-        .checkPortStatus(port, config.host)
-        .then((status) => ({ port, status }))
+      limit(
+        async () =>
+          await portscanner
+            .checkPortStatus(port, config.host)
+            .then((status) => ({ port, status }))
+      )
     );
   }
 
@@ -29,22 +28,16 @@ export async function scanAgents(config: RelayConfig): Promise<ClientConfig[]> {
     .filter((r) => r.status === "open")
     .map((r) => r.port);
   if (!openPorts?.length) {
+    // console.log("No open ports found");
     return [];
   }
-  console.log(`Found ${openPorts.length} open ports: ${openPorts.join(", ")}`);
   const configs: ClientConfig[] = [];
-  // Try to register agents on open ports
   for (const port of openPorts) {
-    try {
-      configs.push({
-        url: `http://${config.host}:${port}`,
-        headers: config.headers,
-        fallbackPath: config.fallbackPath,
-      });
-      console.log(`✓ Agent registered from port ${port}`);
-    } catch (error) {
-      console.log(`✗ Port ${port} open but not an agent`);
-    }
+    configs.push({
+      url: `http://${config.host}:${port}`,
+      headers: config.headers,
+      fallbackPath: config.fallbackPath,
+    });
   }
   return configs;
 }

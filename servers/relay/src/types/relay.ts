@@ -2,37 +2,20 @@
  * Copyright 2025 The Artinet Project
  * SPDX-License-Identifier: Apache-2.0
  */
+import { AgentType, IAgentManager } from "./manager.js";
+import { ClientConfig } from "./schema.js";
 import {
-  Agent,
   AgentCard,
-  MessageSendParams,
+  TaskQueryParams,
   Task,
   TaskIdParams,
-  TaskQueryParams,
+  MessageSendParams,
   SendMessageSuccessResult,
-  A2AClient,
 } from "@artinet/sdk";
-
-export interface ClientConfig {
-  url: URL | string;
-  headers?: Record<string, string>;
-  fallbackPath?: string;
-}
-
-export type AgentType = Agent | A2AClient;
-
-export interface IAgentManager {
-  getAgent(id: string): AgentType | undefined;
-  setAgent(agent: AgentType): Promise<void>;
-  deleteAgent(id: string): void;
-  getAgents(): AgentType[];
-  getAgentCount(): number;
-  getAgentIds(): string[];
-}
 
 export interface IAgentRelay extends IAgentManager {
   registerAgent(agent: AgentType | ClientConfig): Promise<AgentCard>;
-  deregisterAgent(agentId: string): void;
+  deregisterAgent(agentId: string): Promise<void>;
   sendMessage(
     agentId: string,
     messageParams: MessageSendParams

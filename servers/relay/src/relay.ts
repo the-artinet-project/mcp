@@ -2,19 +2,29 @@
  * Copyright 2025 The Artinet Project
  * SPDX-License-Identifier: Apache-2.0
  */
-import { AgentType, IAgentRelay, ClientConfig } from "./types/index.js";
-import { AgentManager } from "./manager.js";
 import {
   A2AClient,
   AgentCard,
-  A2AService,
   MessageSendParams,
   SendMessageSuccessResult,
   TaskQueryParams,
   Task,
   TaskIdParams,
 } from "@artinet/sdk";
-import { RelayConfig, scanAgents } from "./scan.js";
+import {
+  AgentType,
+  IAgentRelay,
+  ClientConfig,
+  AgentRelayConfig,
+  ScanConfig,
+} from "./types/index.js";
+import { AgentManager, getAgentCard } from "./manager.js";
+import { scanAgents, DEFAULT_MAX_THREADS } from "./scan.js";
+import { getAgentRuntimePath } from "./sync.js";
+
+export const DEFAULT_SYNC_INTERVAL = parseInt(
+  process.env.ARTINET_RELAY_SYNC_INTERVAL || "30000"
+);
 
 /**
  * @description AgentRelay is a class that manages the agents and their interactions.
@@ -23,11 +33,62 @@ import { RelayConfig, scanAgents } from "./scan.js";
  * It also provides a way to get the agent card and search for agents.
  */
 export class AgentRelay extends AgentManager implements IAgentRelay {
-  constructor(config: RelayConfig, agents: Map<string, AgentType> = new Map()) {
-    super(agents);
-    this.findAgents(config);
+  private config: Required<AgentRelayConfig>;
+  private timeoutId: NodeJS.Timeout | null = null;
+  constructor(config: AgentRelayConfig) {
+    super(config.agents);
+    this.config = {
+      ...config,
+      abortSignal: config.abortSignal ?? new AbortController().signal,
+      syncInterval: config.syncInterval ?? DEFAULT_SYNC_INTERVAL,
+      configPath: config.configPath ?? getAgentRuntimePath(),
+      scanConfig: {
+        ...(config.scanConfig ?? {}),
+        host: config.scanConfig?.host ?? "localhost",
+        startPort: config.scanConfig?.startPort ?? 3000,
+        endPort: config.scanConfig?.endPort ?? 5000,
+        threads: config.scanConfig?.threads ?? DEFAULT_MAX_THREADS,
+      },
+      agents: config.agents ?? new Map(),
+    };
   }
-  private async findAgents(config: RelayConfig): Promise<void> {
+  /**
+   * @description Create a new AgentRelay instance and ensure its ready to use
+   * @param config - The configuration for the AgentRelay
+   * @returns The AgentRelay instance
+   */
+  static async create(config: AgentRelayConfig): Promise<AgentRelay> {
+    const relay = new AgentRelay(config);
+    await relay.findAgents(relay.config.scanConfig);
+    relay.startSync().catch((error) => {
+      console.error("Error running sync: ", error);
+      throw error;
+    });
+    return relay;
+  }
+
+  override getAgent(agentId: string): AgentType | undefined {
+    //to avoid recursive calls
+    if (agentId === this.config.callerId) {
+      return undefined;
+    }
+    return super.getAgent(agentId);
+  }
+
+  override async close(): Promise<void> {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+    await super.close();
+  }
+
+  private async startSync(): Promise<void> {
+    this.timeoutId = setInterval(async () => {
+      await this.findAgents(this.config.scanConfig);
+    }, this.config.syncInterval);
+  }
+
+  private async findAgents(config: ScanConfig): Promise<void> {
     const configs = await scanAgents(config).catch((error) => {
       console.error(`Error scanning agents: ${error}`);
       return [];
@@ -38,13 +99,14 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
       });
     }
   }
+
+  //todo if agent is not a server, serverfy it?
+  // I think we'll avoid this for now
+  // Because it will allow Relay's to have local environments that are unique to them
   async registerAgent(agent: AgentType | ClientConfig): Promise<AgentCard> {
-    let agentCard: AgentCard;
-    if (agent instanceof A2AClient) {
-      agentCard = await agent.agentCard();
-    } else if (agent instanceof A2AService) {
-      agentCard = agent.agentCard;
-    } else if (
+    let agentCard = await getAgentCard(agent);
+    if (
+      !agentCard &&
       "url" in agent &&
       "headers" in agent &&
       "fallbackPath" in agent
@@ -56,15 +118,17 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
         console.error("error creating client for agent: ", error);
         throw error;
       }
-    } else {
+    } else if (!agentCard) {
       throw new Error("Invalid agent type");
     }
-    super.setAgent(agent);
+    await super.setAgent(agent as AgentType);
     return agentCard;
   }
-  deregisterAgent(id: string): void {
+
+  async deregisterAgent(id: string): Promise<void> {
     super.deleteAgent(id);
   }
+
   async sendMessage(
     agentId: string,
     messageParams: MessageSendParams
@@ -79,6 +143,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
     }
     return sendMessageResult;
   }
+
   async getTask(agentId: string, taskQuery: TaskQueryParams): Promise<Task> {
     const agent = this.getAgent(agentId);
     if (!agent) {
@@ -90,6 +155,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
     }
     return task;
   }
+
   async cancelTask(agentId: string, taskId: TaskIdParams): Promise<Task> {
     const agent = this.getAgent(agentId);
     if (!agent) {
@@ -101,19 +167,19 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
     }
     return task;
   }
+
   async getAgentCard(agentId: string): Promise<AgentCard> {
     const agent = this.getAgent(agentId);
     if (!agent) {
       throw new Error(`Agent ${agentId} not found`);
     }
-    if (agent instanceof A2AClient) {
-      return await agent.agentCard();
-    } else if (agent instanceof A2AService) {
-      return agent.agentCard;
-    } else {
+    let agentCard = await getAgentCard(agent);
+    if (!agentCard) {
       throw new Error(`Invalid agent type`);
     }
+    return agentCard;
   }
+
   async searchAgents(query: string): Promise<AgentCard[]> {
     const agents = this.getAgents();
     return (

@@ -1,6 +1,10 @@
+/**
+ * Copyright 2025 The Artinet Project
+ * SPDX-License-Identifier: Apache-2.0
+ */
 import z from "zod";
 
-export const RegistrationRequestSchema = z.object({
+export const ClientConfigSchema = z.object({
   url: z.string().url().describe("The URL of the agent to register."),
   headers: z
     .record(z.string(), z.string())
@@ -13,4 +17,4 @@ export const RegistrationRequestSchema = z.object({
       "The fallback path to use if the agent does not support the request."
     ),
 });
-export type RegistrationRequest = z.infer<typeof RegistrationRequestSchema>;
+export type ClientConfig = z.infer<typeof ClientConfigSchema>;
