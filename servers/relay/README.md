@@ -147,6 +147,10 @@ interface AgentRelayConfig {
 4. **Relay**: Messages are forwarded to appropriate agents based on agent IDs
 5. **Task Management**: Task status and cancellation are handled through the relay interface
 
+### Smithery
+
+\*Local support for smithery is still experimental.
+
 ### Build
 
 ```bash

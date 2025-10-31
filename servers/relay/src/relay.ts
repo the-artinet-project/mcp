@@ -36,7 +36,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
   private config: Required<AgentRelayConfig>;
   private timeoutId: NodeJS.Timeout | null = null;
   constructor(config: AgentRelayConfig) {
-    super(config.agents);
+    super(config.agents ?? new Map());
     this.config = {
       ...config,
       abortSignal: config.abortSignal ?? new AbortController().signal,
@@ -46,7 +46,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
         ...(config.scanConfig ?? {}),
         host: config.scanConfig?.host ?? "localhost",
         startPort: config.scanConfig?.startPort ?? 3000,
-        endPort: config.scanConfig?.endPort ?? 5000,
+        endPort: config.scanConfig?.endPort ?? 3100,
         threads: config.scanConfig?.threads ?? DEFAULT_MAX_THREADS,
       },
       agents: config.agents ?? new Map(),
@@ -95,7 +95,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
     });
     for (const config of configs) {
       await this.registerAgent(config).catch((error) => {
-        console.error(`Error registering agent: ${error}`);
+        console.warn(`Error registering agent: ${error}`);
       });
     }
   }
@@ -115,7 +115,7 @@ export class AgentRelay extends AgentManager implements IAgentRelay {
         agent = new A2AClient(agent.url, agent.headers, agent.fallbackPath);
         agentCard = await agent.agentCard();
       } catch (error) {
-        console.error("error creating client for agent: ", error);
+        // console.error("error creating client for agent: ", error);
         throw error;
       }
     } else if (!agentCard) {

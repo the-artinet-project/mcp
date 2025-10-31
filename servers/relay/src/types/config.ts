@@ -32,14 +32,15 @@ export interface SyncConfig extends Partial<RuntimeLoaderConfig> {
   syncInterval: number;
 }
 
-export interface ScanConfig {
-  host: string;
-  startPort: number;
-  endPort: number;
-  headers?: Record<string, string>;
-  fallbackPath?: string;
-  threads?: number;
-}
+export const ScanConfigSchema = z.object({
+  host: z.string(),
+  startPort: z.number(),
+  endPort: z.number(),
+  headers: z.record(z.string(), z.string()).optional(),
+  fallbackPath: z.string().optional(),
+  threads: z.number().optional(),
+});
+export type ScanConfig = z.infer<typeof ScanConfigSchema>;
 
 export interface AgentRelayConfig extends Partial<SyncConfig> {
   callerId: string;
