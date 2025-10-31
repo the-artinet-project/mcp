@@ -44,6 +44,7 @@
   "scripts": {
     "build:smithery": "npx smithery build",
     "dev:smithery": "npx smithery dev",
+    "dev": "npm run build:smithery && npm run dev:smithery",
     "build": "tsc --project tsconfig.json",
     "clean": "rimraf dist",
     "clean:all": "rimraf dist node_modules package-lock.json",
