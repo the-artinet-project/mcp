@@ -8,7 +8,7 @@
 
 # Agent Relay MCP Server
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that enables AI agents to discover and communicate with [A2A (Agent-to-Agent)](https://github.com/a2aproject/A2A) enabled AI agents through the [@artinet/sdk](https://github.com/the-artinet-project/artinet-sdk).
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that enables AI agents to discover and communicate with other [A2A (Agent-to-Agent)](https://github.com/a2aproject/A2A) enabled AI agents through the [@artinet/sdk](https://github.com/the-artinet-project/artinet-sdk).
 
 ## Features
 
