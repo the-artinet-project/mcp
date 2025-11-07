@@ -1,6 +1,6 @@
 {
   "name": "@artinet/bash-mcp",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A Model Context Protocol (MCP) server for executing bash commands.",
   "author": "artinet",
   "license": "Apache-2.0",
@@ -41,7 +41,7 @@
     "prepublishOnly": "npm run clean:all && npm i && npm run build && npm test"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.20.0",
+    "@modelcontextprotocol/sdk": "1.20.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

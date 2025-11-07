@@ -5,7 +5,6 @@ import {
   BashRequest,
   BashResponse,
   BashRequestSchema,
-  // BashResponseSchema,
 } from "./types/schema.js";
 import { BashSession } from "./session.js";
 import { BannedCommands } from "./banned-command.js";
