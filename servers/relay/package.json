@@ -1,12 +1,12 @@
 {
   "name": "@artinet/agent-relay-mcp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Model Context Protocol (MCP) server for relaying messages between A2A enabled AI agents.",
   "author": "artinet",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/the-artinet-project/mcp/tree/main/servers/relay"
+    "url": "git+https://github.com/the-artinet-project/mcp.git#main"
   },
   "issues": {
     "url": "https://github.com/the-artinet-project/mcp/issues"
@@ -18,7 +18,7 @@
     "LICENSE"
   ],
   "bin": {
-    "agent-relay-mcp": "./dist/bin/stdio.js"
+    "agent-relay-mcp": "dist/bin/stdio.js"
   },
   "keywords": [
     "artinet",
@@ -42,8 +42,6 @@
   "types": "./dist/src/index.d.ts",
   "rootDir": ".",
   "scripts": {
-    "build:smithery": "npx smithery build",
-    "dev:smithery": "npx smithery dev",
     "build": "tsc --project tsconfig.json",
     "clean": "rimraf dist",
     "clean:all": "rimraf dist node_modules package-lock.json",
@@ -52,16 +50,16 @@
     "prepublishOnly": "npm run clean:all && npm i && npm run build && npm test"
   },
   "dependencies": {
-    "@artinet/sdk": "^0.5.11",
-    "@artinet/types": "^0.0.4",
-    "@modelcontextprotocol/sdk": "^1.20.0",
+    "@artinet/sdk": "^0.5.13",
+    "@artinet/agent-relay": "^0.0.3",
+    "@artinet/types": "^0.0.5",
+    "@modelcontextprotocol/sdk": "1.20.0",
     "p-limit": "^7.2.0",
     "portscanner": "^2.2.0",
     "uuid": "^11.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@smithery/cli": "^1.6.3",
     "@types/node": "^20.17.50",
     "@types/portscanner": "^2.1.4",
     "eslint": "^9.25.1",

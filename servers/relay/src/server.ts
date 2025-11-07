@@ -5,8 +5,7 @@
 import { ServerOptions } from "@modelcontextprotocol/sdk/server/index.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Implementation } from "@modelcontextprotocol/sdk/types.js";
-import { AgentRelay } from "./relay.js";
-import { AgentRelayConfig } from "./types/index.js";
+import { AgentRelay, AgentRelayConfig } from "@artinet/agent-relay";
 import { v4 as uuidv4 } from "uuid";
 import {
   TaskSchema,
@@ -193,7 +192,8 @@ The assistant should always return the result to the user in a clear and concise
       "getAgentCard",
       {
         title: "Get Agent Card",
-        description: "Get the agent card of an agent",
+        description:
+          "Get the AgentCard that describes the capabilities and skills of an agent",
         inputSchema: z.object({
           agentId: z
             .string()

@@ -8,15 +8,15 @@
 
 # Agent Relay MCP Server
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that enables AI agents to discover and communicate with other [A2A (Agent-to-Agent)](https://github.com/a2aproject/A2A) enabled AI agents through the [@artinet/sdk](https://github.com/the-artinet-project/artinet-sdk).
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that enables AI agents to discover and communicate with other [A2A (Agent-to-Agent)](https://github.com/a2aproject/A2A) enabled AI agents through the [@artinet/sdk](https://github.com/the-artinet-project/artinet-sdk) and [@artinet/agent-relay](https://github.com/the-artinet-project/agent-relay).
 
 ## Features
 
 - **Automatic Agent Discovery**: Scans network ports to discover available agents
+- **Multi-Agent Orchestration**: Coordinate workflows across multiple specialized agents
 - **Message Relay**: Send messages to agents and receive responses with full task context
 - **Task Management**: Query task status and cancel running tasks
 - **Agent Discovery**: View and search agents by name, description, or skills
-- **Multi-Agent Orchestration**: Coordinate workflows across multiple specialized agents
 
 ## Installation
 
@@ -38,7 +38,7 @@ Example:
 npx @artinet/agent-relay-mcp my-assistant 3000 3100 10
 ```
 
-\*we recommend allocating a small port range because port scanning is resource intensive.
+\*We recommend allocating a small port range because port scanning is resource intensive.
 
 ### As an MCP Server
 
@@ -146,10 +146,6 @@ interface AgentRelayConfig {
 3. **Synchronization**: Periodic sync keeps the agent registry up-to-date
 4. **Relay**: Messages are forwarded to appropriate agents based on agent IDs
 5. **Task Management**: Task status and cancellation are handled through the relay interface
-
-### Smithery
-
-\*Local support for smithery is still experimental.
 
 ### Build
 
