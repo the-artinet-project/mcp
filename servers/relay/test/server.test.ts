@@ -49,8 +49,9 @@ describe.only("RelayMCPServer", () => {
         .createAgent({
           agentCard: testAgentCard,
         }),
+      basePath: "/a2a",
     });
-    httpServer = agentServer.app.listen(3001, () => {});
+    httpServer = agentServer.app.listen(3000, () => {});
     await new Promise((resolve) => setTimeout(resolve, 1000));
   });
   afterAll(async () => {
@@ -165,8 +166,10 @@ describe.only("RelayMCPServer", () => {
             agentCard: {
               ...testAgentCard,
               name: "test-agent-2",
+              url: "http://localhost:3002/a2a",
             },
           }),
+        basePath: "/a2a",
       });
       const httpServer2 = agentServer2.app.listen(3002, () => {});
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -205,8 +208,10 @@ describe.only("RelayMCPServer", () => {
             agentCard: {
               ...testAgentCard,
               name: "test-agent-2",
+              url: "http://localhost:3002/a2a",
             },
           }),
+        basePath: "/a2a",
       });
       const httpServer2 = agentServer2.app.listen(3002, () => {});
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -253,8 +258,13 @@ describe.only("RelayMCPServer", () => {
             agent: AgentBuilder()
               .text(() => "hello world!")
               .createAgent({
-                agentCard: { ...testAgentCard, name: `test-agent-${i}` },
+                agentCard: {
+                  ...testAgentCard,
+                  name: `test-agent-${i}`,
+                  url: `http://localhost:${3002 + i}/a2a`,
+                },
               }),
+            basePath: "/a2a",
           })
         );
         httpServers.push(agentServers[i].app.listen(3002 + i, () => {}));
